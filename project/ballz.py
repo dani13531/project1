@@ -78,9 +78,6 @@ class Ui_window(object):
         self.TGNumpbtn = QtWidgets.QPushButton(self.TGtab)
         self.TGNumpbtn.setGeometry(QtCore.QRect(590, 50, 141, 28))
         self.TGNumpbtn.setObjectName("TGNumpbtn")
-        self.TGrememberme = QtWidgets.QCheckBox(self.TGtab)
-        self.TGrememberme.setGeometry(QtCore.QRect(590, 230, 141, 20))
-        self.TGrememberme.setObjectName("TGrememberme")
         self.tabWidget = QtWidgets.QTabWidget(self.TGtab)
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 581, 461))
         self.tabWidget.setObjectName("tabWidget")
@@ -193,7 +190,6 @@ class Ui_window(object):
         self.TGcodebtn.setText(_translate("window", "Ввод"))
         self.TGAccexitbtn.setText(_translate("window", "Выйти из аккаунта"))
         self.TGNumpbtn.setText(_translate("window", "Ввод"))
-        self.TGrememberme.setText(_translate("window", "Запомнить аккаунт"))
         self.IDChannellabel.setText(_translate("window", "Введите ID канала:"))
         self.IDChannelbtn.setText(_translate("window", "Ввод"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.showmsgtab), _translate("window", "Сообщения"))
@@ -331,7 +327,11 @@ async def TGmsgas(self):
 
 async def searchmsg(self):
     async for message in self.client.search_messages(chat_id= self.chatid, query= self.que, from_user= self.user):
-        self.TGoutputsearch.insertPlainText(str(message) + "\n------------------------------------------------------------------\n")
+        if message.text == None:
+            if message.photo == None:
+                self.TGoutputsearch.insertPlainText(str(message) + "\n------------------------------------------------------------------\n")
+            else: self.TGoutputsearch.insertPlainText("Фотография" + "\n------------------------------------------------------------------\n")
+        else: self.TGoutputsearch.insertPlainText(str(message.text) + "\n------------------------------------------------------------------\n")
 
 
 if __name__ == "__main__":
