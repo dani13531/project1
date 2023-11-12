@@ -1,11 +1,14 @@
 from pyrogram import Client
-from pyrogram.errors import RPCError
-import asyncio
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
+import json
+import requests
 
 api_id = 25413486
 api_hash = '35ec3fd3165e77412d6edc8223c78052'
+vk_accessToken = 'bc24ff58bc24ff58bc24ff5885bf32d633bbc24bc24ff58d967876b1d3119b047916f8e'
+
+
 class Ui_window(object):
     def setupUi(self, window):
         window.setObjectName("window")
@@ -211,6 +214,7 @@ class Ui_window(object):
         self.TGAccexitbtn.clicked.connect(self.accdel)
         self.IDChannelbtn.clicked.connect(self.TGmsg)
         self.TGsearchinput.clicked.connect(self.searchmsg)
+        self.VK_IDbtn.clicked.connect(self.getInfoAboutVkObject)
 
     def f1(self):
 
@@ -316,6 +320,32 @@ class Ui_window(object):
         self.user = self.lineEdit_4.text()
 
         self.client.run(searchmsg(self))
+    
+    def getInfoAboutVkObject(self):
+
+        id = self.VK_ID.text()
+
+
+        requestUrl = f'https://api.vk.com/method/users.get?user_ids={id}&fields=is_closed,crop_photo,connections,exports,mobile_phone,about,bdate,activities,books,quotes,country,last_seen,city,contacts,counters,education,domain,games,home_town,interests,military,movies,music,occupation,online,personal,relatives,relation,schools,screen_name,sex,site,status,verified,career,tv&lang=0&access_token={vk_accessToken}&v=5.81'
+        response = requests.get(requestUrl).json()
+        if 'response' in response and response['response']:
+            self.VKoutput.setPlainText(str("USER\n" + json.dumps({
+                'response': 'ok',
+                'object': 'user',
+                'user': response['response'][0]
+            })))
+        # if this isn't user, it may be group.
+        requestUrl = f'https://api.vk.com/method/groups.getById?group_ids={id}&fields=city,country,description,members_count,wall,verified,activity,status,screen_name,contacts,site,name,tyoe,fixed_post,addresses,age_limits,counters,market&access_token={vk_accessToken}&v=5.81'
+        response = requests.get(requestUrl).json()
+        if 'response' in response and response['response']:
+            self.VKoutput.insertPlainText(str("GROUP" + json.dumps({
+                'response': 'ok',
+                'object': 'group',
+                'group': response
+            })))
+        else:
+            self.VKoutput.insertPlainText(str( json.dumps({'response': 'error', 'error': 'user or group with this id isn\'t exist.'})))
+
 
 async def TGmsgas(self):
     async for message in self.client.get_chat_history(chat_id = self.chatid):
